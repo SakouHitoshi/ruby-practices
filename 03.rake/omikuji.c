@@ -9,7 +9,7 @@ int  main( )
    system("cls");
    printf("\n*******おみくじ*******\n0を入力すると終了します\n");
 
-   srand(time(NULL)); // 乱数の準備
+   srand(time(NULL));
 
    while ( 1 )
      {
@@ -17,7 +17,7 @@ int  main( )
        gets(c); a=atoi(c);
        if ( a==0 ) break;
 
-       b=rand( )%10+1; // 乱数発生
+       b=rand( )%10+1;
 
        printf(" >>> ");
 
