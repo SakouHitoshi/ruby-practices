@@ -1,0 +1,13 @@
+CC = "gcc"
+
+task :default => "omikuji"
+
+# omikujiというファイルを作成するためにはomikuji.oが必要
+file "omikuji" => "omikuji.o" do
+  sh "#{CC} -o omikuji omikuji.o"
+end
+
+# omikuji.oというオブジェクトファイルをコンパイルするためにはomikuji.cというファイルが必要
+file "omikuji.o" => "omikuji.c" do
+  sh "#{CC} -c omikuji.c"
+end
