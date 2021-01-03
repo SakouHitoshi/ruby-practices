@@ -41,8 +41,6 @@ frames.each_with_index do |f, i|
              STRIKE * 2 + frames[i + 1][1]
            elsif i < NINE_FRAME && frames[i][0] == STRIKE && frames[i + 1][0] == STRIKE
              STRIKE * 2 + frames[i + 2][0]
-           elsif i == 8 && frames[i][0] == STRIKE
-             STRIKE + frames[i + 1][0] + frames[i + 1][1]
            elsif i < NINE_FRAME && frames[i][0] == STRIKE
              STRIKE + frames[i + 1][0] + frames[i + 1][1]
            elsif i < NINE_FRAME && f.sum == STRIKE && frames[0] != STRIKE
