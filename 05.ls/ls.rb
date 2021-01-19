@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'optparse'
 require 'etc'
 
@@ -48,21 +50,21 @@ if option['l']
     mode_octal = l_file.mode.to_s(8) # modeを8進数に変換
     binary = mode_octal[-3].to_i.to_s(2) # 所有者権限を2進数に変換
     rwx = ''
-    rwx << (binary[0] == '1' ? 'r' : '-')
-    rwx << (binary[1] == '1' ? 'w' : '-')
-    rwx << (binary[2] == '1' ? 'x' : '-')
+    rwx += (binary[0] == '1' ? 'r' : '-')
+    rwx += (binary[1] == '1' ? 'w' : '-')
+    rwx += (binary[2] == '1' ? 'x' : '-')
     print rwx
     binary = mode_octal[-2].to_i.to_s(2) # グループ権限を2進数に変換
     rwx = ''
-    rwx << (binary[0] == '1' ? 'r' : '-')
-    rwx << (binary[1] == '1' ? 'w' : '-')
-    rwx << (binary[2] == '1' ? 'x' : '-')
+    rwx += (binary[0] == '1' ? 'r' : '-')
+    rwx += (binary[1] == '1' ? 'w' : '-')
+    rwx += (binary[2] == '1' ? 'x' : '-')
     print rwx
     binary = mode_octal[-1].to_i.to_s(2) # その他のユーザー権限を2進数に変換
     rwx = ''
-    rwx << (binary[0] == '1' ? 'r' : '-')
-    rwx << (binary[1] == '1' ? 'w' : '-')
-    rwx << (binary[2] == '1' ? 'x' : '-')
+    rwx += (binary[0] == '1' ? 'r' : '-')
+    rwx += (binary[1] == '1' ? 'w' : '-')
+    rwx += (binary[2] == '1' ? 'x' : '-')
     print rwx.ljust(4)
     print hard_link.ljust(2)
     print user.ljust(14)
