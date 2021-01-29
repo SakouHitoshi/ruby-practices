@@ -71,15 +71,14 @@ end
 
 # a,rオプションのデータ取得
 file_names =
-  if option['a']
-    Dir.glob('*', File::FNM_DOTMATCH)
+  if option['a'] && option['r']
+    Dir.glob('*', File::FNM_DOTMATCH).sort.reverse
+  elsif option['a']
+    Dir.glob('*', File::FNM_DOTMATCH).sort
+  elsif option['r']
+    Dir.glob('*').sort.reverse
   else
-    Dir.glob('*')
-  end
-if option['r']
-  file_names.sort.reverse
-else
-  file_names.sort
+    Dir.glob('*').sort
 end
 
 # lオプションの出力
