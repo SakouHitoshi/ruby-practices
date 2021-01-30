@@ -3,22 +3,9 @@
 require 'optparse'
 require 'etc'
 
-option = ARGV.getopts('a', 'l', 'r')
-
 # a,rオプションの表示を整える
 def display_arrange(file_names)
-  array = file_names.each_slice(4).map do |file|
-    case file.size
-    when 1
-      file.push(nil, nil, nil)
-    when 2
-      file.push(nil, nil)
-    when 3
-      file.push(nil)
-    else
-      file
-    end
-  end
+  array = file_names.each_slice(4).map {|sub_file_names| Array.new(4) { sub_file_names.shift }}
   array.transpose.each do |record|
     record.each do |display|
       print display.to_s.ljust(20)
@@ -68,6 +55,9 @@ def file_permission(file)
   end
   permission.join
 end
+
+# コマンドライン引数のオプション取得
+option = ARGV.getopts('a', 'l', 'r')
 
 # a,rオプションのデータ取得
 file_names =
