@@ -61,15 +61,17 @@ option = ARGV.getopts('a', 'l', 'r')
 
 # a,rオプションのデータ取得
 file_names =
-  if option['a'] && option['r']
-    Dir.glob('*', File::FNM_DOTMATCH).sort.reverse
-  elsif option['a']
-    Dir.glob('*', File::FNM_DOTMATCH).sort
-  elsif option['r']
-    Dir.glob('*').sort.reverse
+  if option['a']
+    Dir.glob('*', File::FNM_DOTMATCH)
   else
-    Dir.glob('*').sort
-end
+    Dir.glob('*')
+  end
+file_names =
+  if option['r']
+    file_names.sort.reverse
+  else
+    file_names.sort
+  end
 
 # lオプションの出力
 if option['l']
