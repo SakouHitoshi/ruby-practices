@@ -5,7 +5,7 @@ require 'etc'
 
 # a,rオプションの表示を整える
 def display_arrange(file_names)
-  array = file_names.each_slice(4).map {|sub_file_names| Array.new(4) { sub_file_names.shift }}
+  array = file_names.each_slice(4).map { |sub_file_names| Array.new(4) { sub_file_names.shift } }
   array.transpose.each do |record|
     record.each do |display|
       print display.to_s.ljust(20)
