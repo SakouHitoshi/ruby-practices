@@ -13,8 +13,8 @@ def file_words(file)
 end
 
 # バイトサイズ
-def byte_size(byte_date)
-  byte_date.size
+def byte_size(file)
+  file.size
 end
 
 # 標準入力の行数表示
@@ -33,16 +33,15 @@ def standard_input_byte_size(input)
 end
 
 # トータル出力
-def multiple_files(filename, byte_date)
+def multiple_files(file_names)
   lines_sum = 0
   words_sum = 0
   bytes_sum = 0
-  filename.each do |n|
+  file_names.each do |n|
     file = File.read(n)
-    byte_date = File.new(n)
     lines_sum += file.lines.count
     words_sum += file.split(/\s+/).size
-    bytes_sum += byte_date.size
+    bytes_sum += file.size
   end
   print lines_sum.to_s.rjust(8)
   print words_sum.to_s.rjust(8)
@@ -51,9 +50,9 @@ def multiple_files(filename, byte_date)
 end
 
 # 行数だけのトータル出力
-def multiple_lines(filename)
+def multiple_lines(file_names)
   lines_sum = 0
-  filename.each do |n|
+  file_names.each do |n|
     file = File.read(n)
     lines_sum += file.lines.count
   end
@@ -62,13 +61,13 @@ def multiple_lines(filename)
 end
 
 option = ARGV.getopts('l')
-filename = ARGV
+file_names = ARGV
 
 # 標準入力の条件分岐
-if filename.count.zero? && option['l']
+if file_names.empty? && option['l']
   input = $stdin.read
   puts standard_input_lines(input).to_s.rjust(8)
-elsif filename.count.zero?
+elsif file_names.empty?
   input = $stdin.read
   print standard_input_lines(input).to_s.rjust(8)
   print standard_input_words(input).to_s.rjust(8)
@@ -76,38 +75,33 @@ elsif filename.count.zero?
 end
 
 # ファイルが1つの場合の条件分岐
-if filename.count == 1 && option['l']
+if file_names.count == 1 && option['l']
   file = File.read(ARGV[0])
   print file_line(file).to_s.rjust(8)
   puts " #{ARGV[0]}"
-elsif filename.count == 1
+elsif file_names.count == 1
   file = File.read(ARGV[0])
-  byte_date = File.new(ARGV[0])
   print file_line(file).to_s.rjust(8)
   print file_words(file).to_s.rjust(8)
-  print byte_size(byte_date).to_s.rjust(8)
+  print byte_size(file).to_s.rjust(8)
   puts " #{ARGV[0]}"
 end
 
 # ファイルが複数の場合の条件分岐
-if filename.count > 1 && option['l']
-  file = File.read(ARGV[0])
-  filename.each do |n|
+if file_names.count > 1 && option['l']
+  file_names.each do |n|
     file = File.read(n)
     print file_line(file).to_s.rjust(8)
-    puts " #{ARGV[0]}"
+    puts " #{n}"
   end
-  multiple_lines(filename)
-elsif filename.count > 1
-  file = File.read(ARGV[0])
-  byte_date = File.new(ARGV[0])
-  filename.each do |n|
+  multiple_lines(file_names)
+elsif file_names.count > 1
+  file_names.each do |n|
     file = File.read(n)
-    byte_date = File.new(n)
     print file_line(file).to_s.rjust(8)
     print file_words(file).to_s.rjust(8)
-    print byte_size(byte_date).to_s.rjust(8)
-    puts " #{ARGV[0]}"
+    print byte_size(file).to_s.rjust(8)
+    puts " #{n}"
   end
-  multiple_files(filename, byte_date)
+  multiple_files(file_names)
 end
