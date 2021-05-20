@@ -3,10 +3,10 @@ class Shot
   STRIKE = 10
 
   def initialize(shot)
-    @shot = shot == 'X' ? STRIKE : shot.to_i
+    @shot = shot
   end
 
   def score
-    shot == 'X' ? 10 : shot.to_i
+    @shot == 'X' ? STRIKE : @shot.to_i
   end
 end
