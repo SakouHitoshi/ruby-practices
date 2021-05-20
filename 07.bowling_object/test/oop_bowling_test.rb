@@ -1,22 +1,23 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require_relative '../lib/shot'
 require_relative '../lib/frame'
 require_relative '../lib/game'
 
-
 class OopBowlingTest < Minitest::Test
   def test_shot_crass
-    assert_equal 10, Shot.new("X").score
+    assert_equal 10, Shot.new('X').score
     assert_equal 5, Shot.new(5).score
   end
 
   def test_frame_crass
-    assert_equal 10, Frame.new("X").frame_calc
+    assert_equal 10, Frame.new('X').frame_calc
     assert_equal 5, Frame.new(2, 3).frame_calc
   end
 
   def test_frame_strike?
-    assert_equal true, Frame.new("X").frame_strike?
+    assert_equal true, Frame.new('X').frame_strike?
     assert_equal false, Frame.new(2, 4).frame_strike?
   end
 
@@ -26,7 +27,8 @@ class OopBowlingTest < Minitest::Test
   end
 
   def test_game_crass
-    assert_equal [["2", "5"], ["2", "5"], ["2", "5"], ["2", "5"], ["2", "5"], ["2", "5"], ["2", "5"], ["2", "0"], ["X"], ["2", "8", "4"]], Game.new('2,5,2,5,2,5,2,5,2,5,2,5,2,5,2,0,X,2,8,4').input_to_frames
+    assert_equal [%w[2 5], %w[2 5], %w[2 5], %w[2 5], %w[2 5], %w[2 5], %w[2 5], %w[2 0], ['X'], %w[2 8 4]],
+                 Game.new('2,5,2,5,2,5,2,5,2,5,2,5,2,5,2,0,X,2,8,4').input_to_frames
   end
 
   def test_game_calc1
