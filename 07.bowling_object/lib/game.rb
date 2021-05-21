@@ -58,11 +58,11 @@ class Game
 
   def strike_bonus(frames, index)
     next_frame = next_frame(frames, index)
-    next_next_frame = next_next_frame(frames, index)
+    after_next_frame = after_next_frame(frames, index)
     if frame_before_last?(index)
       next_frame.first_shot + next_frame.second_shot
     elsif next_frame.frame_strike?
-      next_frame.frame_calc + next_next_frame.first_shot
+      next_frame.frame_calc + after_next_frame.first_shot
     else
       next_frame.frame_calc
     end
@@ -81,7 +81,7 @@ class Game
     frames[index]
   end
 
-  def next_next_frame(frames, index)
-    frames[index + 1]
+  def after_next_frame(frames, index)
+    frames[index.next]
   end
 end
