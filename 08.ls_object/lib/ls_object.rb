@@ -1,36 +1,59 @@
+require 'io/console'
 require 'optparse'
 require 'etc'
 
 class Command
-  attr_reader :files, :option
+  attr_reader :files, :option, :width
 
   def initialize(option)
+    @width = IO.console.winsize[1]
     @option = option
     @files = option['a'] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
     files.reverse! if option['r']
   end
 
   def output
-    option['l'] ? LongFormat.new(files).l_option_list : ShortFormat.new(files).display_arrange
+    if option['l']
+      LongFormat.new(files).l_option_list
+    else
+      puts ShortFormat.new(files, width).column_decision(files, width)
+    end
   end
 end
 
 class ShortFormat
-  attr_reader :files
+  attr_reader :files, :width
 
-  def initialize(files)
+  def initialize(files, width)
+    @width = width
     @files = files
   end
 
-  def display_arrange
-    array = files.each_slice(4).map { |sub_file_names| Array.new(4) { sub_file_names.shift } }
-    array.transpose.each do |record|
-      record.each do |display|
-        print display.to_s.ljust(20)
-      end
-      print "\n"
-    end
+  def column_decision(files, width)
+    max_filename_count = files.map(&:size).max
+    col_count = width / (max_filename_count + 1)
+    row_count = col_count.zero? ? 1 : (files.count.to_f / col_count).ceil
+    transposed_file_paths = safe_transpose(files.each_slice(row_count).to_a)
+    format_table(transposed_file_paths, max_filename_count)
   end
+
+  def safe_transpose(nested_file_names)
+    nested_file_names[0].zip(*nested_file_names[1..-1])
+  end
+
+  def format_table(file_paths, max_filename_count)
+    file_paths.map do |row_files|
+      render_short_format_row(row_files, max_filename_count)
+    end.join("\n")
+  end
+
+  def render_short_format_row(row_files, max_filename_count)
+    row_files.map do |file_path|
+      basename = file_path ? File.basename(file_path) : ''
+      basename.ljust(max_filename_count + 1)
+    end.join.rstrip
+  end
+
 end
 
 class LongFormat
