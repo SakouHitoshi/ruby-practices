@@ -1,5 +1,6 @@
 require 'io/console'
 require 'optparse'
+require 'pathname'
 require 'etc'
 
 class Command
@@ -13,36 +14,31 @@ class Command
   end
 
   def output
-    if option['l']
-      LongFormat.new(files).l_option_list
-    else
-      puts ShortFormat.new(files, width).column_decision(files, width)
-    end
+    option['l'] ? LongFormat.new(files).l_option_list : ShortFormat.new(files).column_decision(files, width)
   end
 end
 
 class ShortFormat
-  attr_reader :files, :width
+  attr_reader :files
 
-  def initialize(files, width)
-    @width = width
+  def initialize(files)
     @files = files
   end
 
   def column_decision(files, width)
     max_filename_count = files.map(&:size).max
     col_count = width / (max_filename_count + 1)
-    row_count = col_count.zero? ? 1 : (files.count.to_f / col_count).ceil
+    row_count = col_count.zero? ? files.count : (files.count.to_f / col_count).ceil
     transposed_file_paths = safe_transpose(files.each_slice(row_count).to_a)
-    format_table(transposed_file_paths, max_filename_count)
+    puts format_table(transposed_file_paths, max_filename_count)
   end
 
   def safe_transpose(nested_file_names)
     nested_file_names[0].zip(*nested_file_names[1..-1])
   end
 
-  def format_table(file_paths, max_filename_count)
-    file_paths.map do |row_files|
+  def format_table(files, max_filename_count)
+    files.map do |row_files|
       render_short_format_row(row_files, max_filename_count)
     end.join("\n")
   end
