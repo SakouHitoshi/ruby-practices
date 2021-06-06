@@ -3,25 +3,40 @@ require 'optparse'
 require_relative '../lib/ls_object'
 
 class LsObjectTest < Minitest::Test
+
   def test_normal_ls
     expected = <<~TEXT.chomp
-      dummy01 dummy02 dummy03 dummy04 dummy05 dummy06 dummy07 dummy08 dummy09 dummy10 lib     test
+      dummy01 dummy02 dummy03 dummy04 dummy05 lib     test
     TEXT
-    assert_equal expected, Command.new.output
+    assert_equal expected, Command.new(terminal_width: 80).output
   end
 
   def test_a_option_ls
     expected = <<~TEXT.chomp
-      .        ..       .gitkeep dummy01  dummy02  dummy03  dummy04  dummy05  dummy06  dummy07  dummy08  dummy09  dummy10  lib      test
+      .        .gitkeep dummy02  dummy04  lib
+      ..       dummy01  dummy03  dummy05  test
     TEXT
-    assert_equal expected, Command.new('a').output
+    assert_equal expected, Command.new(terminal_width: 80, include_dot_file: true).output
   end
 
   def test_r_option_ls
     expected = <<~TEXT.chomp
-      test    lib     dummy10 dummy09 dummy08 dummy07 dummy06 dummy05 dummy04 dummy03 dummy02 dummy01
+      test    lib     dummy05 dummy04 dummy03 dummy02 dummy01
     TEXT
-    assert_equal expected, Command.new('r').output
+    assert_equal expected, Command.new(terminal_width: 80, reverse: true).output
   end
 
+  def test_l_option_ls
+    expected = <<~TEXT.chomp
+      total 0
+      -rw-r--r--  1 sakouhitoshi  staff   0  5 21 09:48 dummy01
+      -rw-r--r--  1 sakouhitoshi  staff   0  5 21 09:48 dummy02
+      -rw-r--r--  1 sakouhitoshi  staff   0  5 21 09:49 dummy03
+      -rw-r--r--  1 sakouhitoshi  staff   0  5 21 09:49 dummy04
+      -rw-r--r--  1 sakouhitoshi  staff   0  5 21 09:49 dummy05
+      drwxr-xr-x  3 sakouhitoshi  staff  96  6  6 16:47 lib
+      drwxr-xr-x  3 sakouhitoshi  staff  96  6  6 16:47 test
+    TEXT
+    assert_equal expected, Command.new(long_format: true).output
+  end
 end

@@ -1,55 +1,58 @@
 require 'io/console'
 require 'optparse'
-require 'pathname'
 require 'etc'
 
 class Command
-  attr_reader :files, :option, :width
+  attr_reader :terminal_width, :long_format, :reverse, :include_dot_file
 
-  def initialize(option)
-    @width = IO.console.winsize[1]
-    @option = option
-    @files = option['a'] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
-    files.reverse! if option['r']
+  def initialize(terminal_width: IO.console.winsize[1], long_format: false, reverse: false, include_dot_file: false)
+    @terminal_width = terminal_width
+    @long_format = long_format
+    @reverse = reverse
+    @include_dot_file = include_dot_file
   end
 
   def output
-    option['l'] ? LongFormat.new(files).l_option_list : ShortFormat.new(files).column_decision(files, width)
+    files = include_dot_file ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
+    files.reverse! if reverse
+    long_format ? LongFormat.new(files).long_display : ShortFormat.new(files, terminal_width).short_display
   end
 end
 
 class ShortFormat
-  attr_reader :files
+  attr_reader :terminal_width
 
-  def initialize(files)
+  def initialize(files, terminal_width)
+    @basename = files.map { |file| File.basename(file) }
+    @terminal_width = terminal_width
     @files = files
   end
 
-  def column_decision(files, width)
-    max_filename_count = files.map(&:size).max
-    col_count = width / (max_filename_count + 1)
-    row_count = col_count.zero? ? files.count : (files.count.to_f / col_count).ceil
-    transposed_file_paths = safe_transpose(files.each_slice(row_count).to_a)
-    puts format_table(transposed_file_paths, max_filename_count)
+  def short_display
+    display_files = @basename.each_slice(lines).map { |file| file }
+    (lines - display_files.last.size).times do
+      display_files.last.push ''
+    end
+    files_transpose = display_files.transpose
+    files_transpose.map { |file| format_lines(file) }.join(("\n"))
   end
 
-  def safe_transpose(nested_file_names)
-    nested_file_names[0].zip(*nested_file_names[1..-1])
+  def lines
+    (@basename.size / columns).ceil
   end
 
-  def format_table(files, max_filename_count)
-    files.map do |row_files|
-      render_short_format_row(row_files, max_filename_count)
-    end.join("\n")
+  def columns
+    col_count = terminal_width / (max_filename_length + 1)
+    col_count.zero? ? 1 : col_count.to_f
   end
 
-  def render_short_format_row(row_files, max_filename_count)
-    row_files.map do |file_path|
-      basename = file_path ? File.basename(file_path) : ''
-      basename.ljust(max_filename_count + 1)
-    end.join.rstrip
+  def max_filename_length
+    @basename.max_by(&:length).size
   end
 
+  def format_lines(files)
+    files.map { |file| file.ljust(max_filename_length + 1) }.join.rstrip
+  end
 end
 
 class LongFormat
@@ -59,25 +62,27 @@ class LongFormat
     @files = files
   end
 
-  def l_option_list
-    total_blocks
-    files.each do |file|
-      print file_type(file)
-      print file_permission(file)
-      print File::Stat.new(file).nlink.to_s.ljust(2)
-      print Etc.getpwuid(File.stat(file).uid).name.ljust(14)
-      print Etc.getgrgid(File.stat(file).gid).name.ljust(6)
-      print File::Stat.new(file).size.to_s.rjust(6)
-      print File::Stat.new(file).mtime.strftime(' %m %d %H:%M ').rjust(12)
-      puts file
-    end
+  def long_display
+    files_date = files.map { |file| build_data(file) }
+    max_lengths = max_lengths(files_date)
+    total = files_date.sum { |file| file[:block].to_i }
+    total_line = "total #{total}"
+    body = files_date.map { |file| formatted_for_display(file, *max_lengths) }
+    [total_line, *body].join("\n")
   end
 
-  def total_blocks
-    total_blocks = files.sum do |file|
-      File::Stat.new(file).blocks
-    end
-    puts "total #{total_blocks}"
+  def build_data(file)
+    {
+      type: file_type(file),
+      permission: file_permission(file),
+      links: File.lstat(file).nlink.to_s,
+      user: Etc.getpwuid(File.lstat(file).uid).name,
+      group: Etc.getgrgid(File.lstat(file).gid).name,
+      size: File.lstat(file).size.to_s,
+      timestamp: time_stamp(file),
+      file: File.basename(file),
+      block: File.lstat(file).blocks.to_i
+    }
   end
 
   def file_type(file)
@@ -111,7 +116,36 @@ class LongFormat
     end
     permission.join
   end
+
+  def time_stamp(file)
+    timestamp = File.lstat(file).mtime
+    "#{timestamp.strftime('%-m').rjust(2)} #{timestamp.strftime('%e %H:%M')}"
+  end
+
+  def max_lengths(files)
+    keys = %i[links user group size]
+    keys.map { |key| files.map { |file| file[key].size }.max }
+  end
+
+  def formatted_for_display(file, links_max_length, user_max_length, group_max_length, size_max_length)
+    [
+      file[:type],
+      file[:permission],
+      "  #{file[:links].rjust(links_max_length)}",
+      " #{file[:user].ljust(user_max_length)}",
+      "  #{file[:group].ljust(group_max_length)}",
+      "  #{file[:size].rjust(size_max_length)}",
+      " #{file[:timestamp]}",
+      " #{file[:file]}",
+      file[:linked_file]
+    ].join
+  end
 end
 
-option = ARGV.getopts('a', 'l', 'r')
-Command.new(option).output
+opt = OptionParser.new
+params = { long_format: false, reverse: false, include_dot_file: false }
+opt.on('-a') { |v| params[:include_dot_file] = v }
+opt.on('-l') { |v| params[:long_format] = v }
+opt.on('-r') { |v| params[:reverse] = v }
+opt.parse!(ARGV)
+puts Command.new(**params).output
