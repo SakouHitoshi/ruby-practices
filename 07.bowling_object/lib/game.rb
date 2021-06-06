@@ -4,8 +4,6 @@ require_relative 'shot'
 require_relative 'frame'
 
 class Game
-  attr_accessor :input
-
   def initialize(input)
     @input = input
   end
