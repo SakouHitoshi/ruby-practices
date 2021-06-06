@@ -11,7 +11,7 @@ class Frame
     @third_shot = Shot.new(third_shot).score
   end
 
-  def frame_calc
+  def calc
     frame_point = @first_shot
     frame_point += @second_shot if @second_shot
     frame_point += @third_shot if @third_shot

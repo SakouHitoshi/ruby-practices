@@ -44,11 +44,11 @@ class Game
 
   def calc_frame_score(frames, frame, index)
     if frame.frame_strike? && !last_frame?(index)
-      frame.frame_calc + strike_bonus(frames, index)
+      frame.calc + strike_bonus(frames, index)
     elsif frame.frame_spare? && !last_frame?(index)
-      frame.frame_calc + spare_bonus(frames, index)
+      frame.calc + spare_bonus(frames, index)
     else
-      frame.frame_calc
+      frame.calc
     end
   end
 
@@ -62,9 +62,9 @@ class Game
     if frame_before_last?(index)
       next_frame.first_shot + next_frame.second_shot
     elsif next_frame.frame_strike?
-      next_frame.frame_calc + after_next_frame.first_shot
+      next_frame.calc + after_next_frame.first_shot
     else
-      next_frame.frame_calc
+      next_frame.calc
     end
   end
 

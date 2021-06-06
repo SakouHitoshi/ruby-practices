@@ -12,8 +12,8 @@ class OopBowlingTest < Minitest::Test
   end
 
   def test_frame_crass
-    assert_equal 10, Frame.new('X').frame_calc
-    assert_equal 5, Frame.new(2, 3).frame_calc
+    assert_equal 10, Frame.new('X').calc
+    assert_equal 5, Frame.new(2, 3).calc
   end
 
   def test_frame_strike?
