@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'optparse'
 require_relative '../lib/ls_object'
 
 class LsObjectTest < Minitest::Test
-
   def test_normal_ls
     expected = <<~TEXT.chomp
       dummy01 dummy02 dummy03 dummy04 dummy05 lib     test
