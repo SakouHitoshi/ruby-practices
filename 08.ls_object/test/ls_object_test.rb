@@ -35,8 +35,8 @@ class LsObjectTest < Minitest::Test
       -rw-r--r--  1 sakouhitoshi  staff   0  5 21 09:49 dummy03
       -rw-r--r--  1 sakouhitoshi  staff   0  5 21 09:49 dummy04
       -rw-r--r--  1 sakouhitoshi  staff   0  5 21 09:49 dummy05
-      drwxr-xr-x  3 sakouhitoshi  staff  96  6  6 16:47 lib
-      drwxr-xr-x  3 sakouhitoshi  staff  96  6  6 16:47 test
+      drwxr-xr-x  3 sakouhitoshi  staff  96  6  6 17:26 lib
+      drwxr-xr-x  3 sakouhitoshi  staff  96  6  6 17:37 test
     TEXT
     assert_equal expected, Command.new(long_format: true).output
   end
