@@ -1,0 +1,80 @@
+# frozen_string_literal: true
+
+require_relative 'shot'
+require_relative 'frame'
+
+class Game
+  def initialize(input)
+    @input = input
+  end
+
+  def game_score
+    frame_points.sum
+  end
+
+  def frame_points
+    input_to_frames.map.with_index(1) do |frame, index|
+      calc_frame_score(input_to_frames, frame, index)
+    end
+  end
+
+  def input_to_frames
+    frames = []
+    one_frame_pinfall = []
+    @input.split(',').each do |shot|
+      one_frame_pinfall << shot
+      if frames.size < 10
+        if shot == 'X' || one_frame_pinfall.size >= 2
+          frames << one_frame_pinfall.clone
+          one_frame_pinfall.clear
+        end
+      else
+        frames.last << shot
+      end
+    end
+    frames.map { |frame| Frame.new(*frame) }
+  end
+
+  def calc_frame_score(frames, frame, index)
+    if frame.frame_strike? && !last_frame?(index)
+      frame.calc + strike_bonus(frames, index)
+    elsif frame.frame_spare? && !last_frame?(index)
+      frame.calc + spare_bonus(frames, index)
+    else
+      frame.calc
+    end
+  end
+
+  def last_frame?(index)
+    index == 10
+  end
+
+  def strike_bonus(frames, index)
+    next_frame = next_frame(frames, index)
+    after_next_frame = after_next_frame(frames, index)
+    if frame_before_last?(index)
+      next_frame.first_shot + next_frame.second_shot
+    elsif next_frame.frame_strike?
+      next_frame.calc + after_next_frame.first_shot
+    else
+      next_frame.calc
+    end
+  end
+
+  def spare_bonus(frames, index)
+    next_frame = next_frame(frames, index)
+    next_frame.first_shot
+  end
+
+  def frame_before_last?(index)
+    index == 9
+  end
+
+  def next_frame(frames, index)
+    frames[index]
+  end
+
+  def after_next_frame(frames, index)
+    frames[index.next]
+  end
+end
