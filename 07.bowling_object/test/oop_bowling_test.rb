@@ -26,11 +26,6 @@ class OopBowlingTest < Minitest::Test
     assert_equal false, Frame.new(2, 4).frame_spare?
   end
 
-  def test_game_crass
-    assert_equal [%w[2 5], %w[2 5], %w[2 5], %w[2 5], %w[2 5], %w[2 5], %w[2 5], %w[2 0], ['X'], %w[2 8 4]],
-                 Game.new('2,5,2,5,2,5,2,5,2,5,2,5,2,5,2,0,X,2,8,4').input_to_frames
-  end
-
   def test_game_calc1
     assert_equal 139, Game.new('6,3,9,0,0,3,8,2,7,3,X,9,1,8,0,X,6,4,5').game_score
   end

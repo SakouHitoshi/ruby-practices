@@ -4,8 +4,6 @@ require_relative 'shot'
 require_relative 'frame'
 
 class Game
-  attr_reader :shot
-
   def initialize(input)
     @input = input
   end
@@ -15,22 +13,17 @@ class Game
   end
 
   def frame_points
-    create_to_frame_class.map.with_index(1) do |frame, index|
-      calc_frame_score(create_to_frame_class, frame, index)
+    input_to_frames.map.with_index(1) do |frame, index|
+      calc_frame_score(input_to_frames, frame, index)
     end
   end
 
-  def create_to_frame_class
-    input_to_frames.each.map { |frame| Frame.new(*frame) }
-  end
-
   def input_to_frames
-    all_pinfalls = @input.split(',')
     frames = []
     one_frame_pinfall = []
-    all_pinfalls.each do |shot|
+    @input.split(',').each do |shot|
       one_frame_pinfall << shot
-      if frames.size != 10
+      if frames.size < 10
         if shot == 'X' || one_frame_pinfall.size >= 2
           frames << one_frame_pinfall.clone
           one_frame_pinfall.clear
@@ -39,7 +32,7 @@ class Game
         frames.last << shot
       end
     end
-    frames
+    frames.map { |frame| Frame.new(*frame) }
   end
 
   def calc_frame_score(frames, frame, index)

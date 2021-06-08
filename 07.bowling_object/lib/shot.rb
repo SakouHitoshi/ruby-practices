@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Shot
-  attr_reader :shot
-
   STRIKE = 10
 
   def initialize(shot)
