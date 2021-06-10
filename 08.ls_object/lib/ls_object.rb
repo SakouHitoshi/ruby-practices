@@ -17,7 +17,7 @@ class Command
   def output
     files = include_dot_file ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
     files.reverse! if reverse
-    long_format ? LongFormat.new(files).long_display : ShortFormat.new(files, terminal_width).short_display
+    long_format ? LongFormat.new(files).display : ShortFormat.new(files, terminal_width).display
   end
 end
 
@@ -30,8 +30,8 @@ class ShortFormat
     @files = files
   end
 
-  def short_display
-    display_files = @basename.each_slice(lines).map { |file| file }
+  def display
+    display_files = @basename.each_slice(lines).to_a
     (lines - display_files.last.size).times do
       display_files.last.push ''
     end
@@ -64,7 +64,7 @@ class LongFormat
     @files = files
   end
 
-  def long_display
+  def display
     files_date = files.map { |file| build_data(file) }
     max_lengths = max_lengths(files_date)
     total = files_date.sum { |file| file[:block].to_i }
